@@ -1,6 +1,6 @@
 # MC NDI 
 
-![Curseforge Page](https://cf.way2muchnoise.eu/title/457015.svg)
+![<img src="https://cf.way2muchnoise.eu/title/457015.svg")/>](https://www.curseforge.com/minecraft/mc-mods/mc-ndi)
 
 Adding support for directly outputting Minecraft as NDI sources. 
 Currently, outputs the main screen by default using MC - Username, you can also add more cameras that have their own output sources. 
