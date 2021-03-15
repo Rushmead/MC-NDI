@@ -13,6 +13,7 @@ architectury {
 
 loom {
     useFabricMixin = true
+    mixinConfig 'mixins.mcndi.json'
 }
 
 dependencies {
