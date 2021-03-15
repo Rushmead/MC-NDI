@@ -1,0 +1,14 @@
+modLoader = "javafml"
+loaderVersion = "[35,)"
+#issueTrackerURL = ""
+license = "GNU GPLv3"
+
+[[mods]]
+modId = "mcndi"
+version = "${version}"
+displayName = "MC NDI"
+authors = "Rushmead"
+description = '''
+This mod adds NDI to Minecraft.
+'''
+#logoFile = ""

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "mcndi",
+  "version": "${version}",
+  "name": "MC NDI",
+  "description": "Mod that adds NDI to Minecraft",
+  "authors": [
+    "Rushmead"
+  ],
+  "contact": {
+    "homepage": "https://imabad.dev",
+    "sources": "https://github.com/Rushmead/MC-NDI"
+  },
+  "license": "GNU GPLv3",
+  "icon": "",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.imabad.ndi.fabric.NDIModFabric"
+    ]
+  },
+  "mixins": [
+    "mixins.ndimod.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": ">=1.16.4",
+    "architectury": ">=1.1.55"
+  },
+  "suggests": {
+    "flamingo": "*"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "dev.imabad.ndi.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "CameraMixin",
+    "ClientPlayerEntityMixin",
+    "GameRendererMixin",
+    "MinecraftClientMixin",
+    "PlayerEntityRendererMixin",
+    "WorldRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
