@@ -15,6 +15,8 @@ public class NameScreen extends Screen {
 
     private CameraEntity cameraEntity;
     private EditBox nameField;
+    private EditBox zoomField;
+    private Button deleteButton;
 
     public NameScreen(CameraEntity cameraEntity) {
         super(new TextComponent("Edit Camera"));
@@ -33,8 +35,15 @@ public class NameScreen extends Screen {
         this.nameField.changeFocus(true);
         this.nameField.setMaxLength(35);
         this.addWidget(this.nameField);
-        this.setInitialFocus(this.nameField);
-        this.addWidget(new Button(i - 20, j + 20, 40, 20, new TextComponent("Delete"), this::buttonClick));
+        this.zoomField = new EditBox(this.font, i - 75, j + 20, 150, 20, new TranslatableComponent("container.repair"));
+        this.zoomField.setValue(cameraEntity.getZoom() + "");
+        this.zoomField.setFocus(true);
+        this.zoomField.setCanLoseFocus(false);
+        this.zoomField.changeFocus(true);
+        this.zoomField.setMaxLength(35);
+        this.setInitialFocus(this.zoomField);
+        this.deleteButton = new Button(i - 20, j + 50, 40, 20, new TextComponent("Delete"), this::buttonClick);
+        this.addWidget(this.deleteButton);
     }
 
     public void buttonClick(Button buttonWidget){
@@ -44,8 +53,10 @@ public class NameScreen extends Screen {
 
     public void resize(Minecraft client, int width, int height) {
         String string = this.nameField.getValue();
+        String zoom = this.zoomField.getValue();
         this.init(client, width, height);
         this.nameField.setValue(string);
+        this.zoomField.setValue(zoom);
     }
 
     public void removed() {
@@ -59,6 +70,10 @@ public class NameScreen extends Screen {
                 String string = this.nameField.getValue();
                 cameraEntity.setName(string);
             }
+            if(!this.nameField.getValue().isEmpty()) {
+                String zoom = this.zoomField.getValue();
+                cameraEntity.setZoom(Float.parseFloat(zoom));
+            }
             this.minecraft.player.clientSideCloseContainer();
         }
 
@@ -70,6 +85,8 @@ public class NameScreen extends Screen {
         super.render(matrixStack, mouseX, mouseY, delta);
         RenderSystem.disableBlend();
         this.nameField.render(matrixStack, mouseX, mouseY, delta);
+        this.zoomField.render(matrixStack, mouseX, mouseY, delta);
+        this.deleteButton.render(matrixStack, mouseX, mouseY, delta);
         this.font.draw(matrixStack, this.title.getContents(), (this.width / 2) - (this.font.width(this.title.getString()) / 2), (this.height / 2) - 30, 0xffffff);
     }
 
