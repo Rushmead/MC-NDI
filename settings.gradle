@@ -1,14 +1,16 @@
 pluginManagement {
     repositories {
-        maven { url "https://maven.fabricmc.net/" }
-        maven { url "https://maven.shedaniel.me/" }
-        maven { url "https://files.minecraftforge.net/maven/" }
         gradlePluginPortal()
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        maven {
+            name = 'Sponge Snapshots'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+        }
     }
 }
 
-include("common")
-include("fabric")
-include("forge")
-
-rootProject.name = "ndimod"
+rootProject.name = 'MCNDI'
+include("Common", "Fabric", "Forge")

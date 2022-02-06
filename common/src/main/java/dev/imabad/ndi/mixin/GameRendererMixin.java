@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GameRenderer.class)
@@ -19,17 +20,20 @@ public abstract class GameRendererMixin {
     @Shadow @Final private Minecraft minecraft;
     @Shadow private float renderDistance;
 
-    @Inject(method = "getProjectionMatrix(Lnet/minecraft/client/Camera;FZ)Lcom/mojang/math/Matrix4f;", at = @At("HEAD"), cancellable = true)
-    private void getProjectionMatrix(Camera camera, float f, boolean bl, CallbackInfoReturnable<Matrix4f> cir) {
+    @Inject(method = "Lnet/minecraft/client/renderer/GameRenderer;getProjectionMatrix(D)Lcom/mojang/math/Matrix4f;", at = @At("HEAD"), cancellable = true)
+    private void getProjectionMatrix(double $$0, CallbackInfoReturnable<Matrix4f> cir) {
         if(!(minecraft.getCameraEntity() instanceof CameraEntity)) return;
 
         CameraEntity cameraEntity = (CameraEntity) minecraft.getCameraEntity();
+        PoseStack $$1 = new PoseStack();
+        $$1.last().pose().setIdentity();
+        if (cameraEntity.getZoom() != 0.0F) {
+            $$1.scale(cameraEntity.getZoom(), cameraEntity.getZoom(), 1.0F);
+        }
 
-        PoseStack matrixStack = new PoseStack();
-        matrixStack.last().pose().setIdentity();
-
-        matrixStack.last().pose().multiply(Matrix4f.perspective(70.0f - (cameraEntity.getZoom()), 16 / 9f, 0.05f, renderDistance * 4.0f));
-        cir.setReturnValue(matrixStack.last().pose());
+        $$1.last().pose().multiply(Matrix4f.perspective(70f, (float)this.minecraft.getWindow().getWidth() / (float)this.minecraft.getWindow().getHeight(), 0.05F, renderDistance * 4.0f));
+        cir.setReturnValue($$1.last().pose());
     }
+
 
 }

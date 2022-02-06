@@ -9,6 +9,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.Entity;
 
 public class NameScreen extends Screen {
 
@@ -31,13 +32,13 @@ public class NameScreen extends Screen {
         this.nameField.setCanLoseFocus(false);
         this.nameField.changeFocus(true);
         this.nameField.setMaxLength(35);
-        this.children.add(this.nameField);
+        this.addWidget(this.nameField);
         this.setInitialFocus(this.nameField);
-        this.addButton(new Button(i - 20, j + 20, 40, 20, new TextComponent("Delete"), this::buttonClick));
+        this.addWidget(new Button(i - 20, j + 20, 40, 20, new TextComponent("Delete"), this::buttonClick));
     }
 
     public void buttonClick(Button buttonWidget){
-        this.cameraEntity.remove();
+        this.cameraEntity.remove(Entity.RemovalReason.KILLED);
         this.minecraft.player.clientSideCloseContainer();
     }
 

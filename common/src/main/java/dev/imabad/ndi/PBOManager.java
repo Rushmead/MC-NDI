@@ -1,10 +1,12 @@
 package dev.imabad.ndi;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
-import com.mojang.blaze3d.pipeline.RenderTarget;
+
 import java.nio.ByteBuffer;
-import net.minecraft.client.Minecraft;
 
 public class PBOManager {
 
@@ -22,7 +24,7 @@ public class PBOManager {
         this.width = width;
         this.height = height;
         buffer = BufferUtils.createByteBuffer(width * height * BYTES_PER_PIXEL);
-        drawBuffer = new RenderTarget(width, height, true, Minecraft.ON_OSX);
+        drawBuffer = new TextureTarget(width, height, true, Minecraft.ON_OSX);
         initPbos(2);
     }
 

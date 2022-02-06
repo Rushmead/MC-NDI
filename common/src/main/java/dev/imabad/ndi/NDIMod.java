@@ -2,13 +2,9 @@ package dev.imabad.ndi;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.walker.devolay.Devolay;
-import me.shedaniel.architectury.event.events.client.ClientTickEvent;
-import me.shedaniel.architectury.registry.KeyBindings;
-import me.shedaniel.architectury.registry.Registries;
+import me.walkerknapp.devolay.Devolay;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.world.entity.Entity;
 import org.lwjgl.glfw.GLFW;
 
@@ -38,25 +34,31 @@ public class NDIMod {
         gameRenderHook = new GameRenderHook("MC - " + sourceName);
         newCameraKey = new KeyMapping("New Camera", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "NDI");
         removeCameraMap = new KeyMapping("Remove all Cameras", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F, "NDI");
-        KeyBindings.registerKeyBinding(newCameraKey);
-        KeyBindings.registerKeyBinding(removeCameraMap);
-        ClientTickEvent.CLIENT_PRE.register(instance -> {
-            if(newCameraKey.isDown() && instance.level != null && instance.player != null){
-                UUID uuid = UUID.randomUUID();
-                CameraEntity armorStandEntity = new CameraEntity(instance.level, new GameProfile(uuid, uuid.toString()));
-                armorStandEntity.setPosAndOldPos(instance.player.getX(), instance.player.getY(), instance.player.getZ());
-                armorStandEntity.setPacketCoordinates(instance.player.getX(), instance.player.getY(), instance.player.getZ());
-                armorStandEntity.absMoveTo(instance.player.getX(), instance.player.getY(), instance.player.getZ(), instance.player.yRot, instance.player.xRot);
-                armorStandEntity.setYHeadRot(instance.player.yHeadRot);
-                instance.level.putNonPlayerEntity(armorStandEntity.getId(), armorStandEntity);
-                newCameraKey.setDown(false);
-                cameraManager.cameraEntities.add(armorStandEntity);
-            } else if(removeCameraMap.isDown() && instance.level != null && instance.player != null){
-                for(Entity ent : cameraManager.cameraEntities){
-                    instance.level.removeEntity(ent.getId());
-                }
-            }
-        });
     }
 
+    public static void handleKeybind(Minecraft instance) {
+        if(newCameraKey.isDown() && instance.level != null && instance.player != null){
+            UUID uuid = UUID.randomUUID();
+            CameraEntity armorStandEntity = new CameraEntity(instance.level, new GameProfile(uuid, uuid.toString()));
+            armorStandEntity.setPos(instance.player.getX(), instance.player.getY(), instance.player.getZ());
+            armorStandEntity.setPacketCoordinates(instance.player.getX(), instance.player.getY(), instance.player.getZ());
+            armorStandEntity.absMoveTo(instance.player.getX(), instance.player.getY(), instance.player.getZ(), instance.player.getYRot(), instance.player.getXRot());
+            armorStandEntity.setYHeadRot(instance.player.yHeadRot);
+            instance.level.putNonPlayerEntity(armorStandEntity.getId(), armorStandEntity);
+            newCameraKey.setDown(false);
+            cameraManager.cameraEntities.add(armorStandEntity);
+        } else if(removeCameraMap.isDown() && instance.level != null && instance.player != null){
+            for(Entity ent : cameraManager.cameraEntities){
+                instance.level.removeEntity(ent.getId(), Entity.RemovalReason.DISCARDED);
+            }
+        }
+    }
+
+    public static KeyMapping getNewCameraKey() {
+        return newCameraKey;
+    }
+
+    public static KeyMapping getRemoveCameraMap() {
+        return removeCameraMap;
+    }
 }

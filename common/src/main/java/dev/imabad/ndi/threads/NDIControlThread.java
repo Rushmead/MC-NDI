@@ -1,10 +1,13 @@
 package dev.imabad.ndi.threads;
 
-import com.walker.devolay.DevolayFrameType;
-import com.walker.devolay.DevolayMetadataFrame;
-import com.walker.devolay.DevolaySender;
-import com.walker.devolay.DevolayTally;
+
 import dev.imabad.ndi.CameraEntity;
+import me.walkerknapp.devolay.DevolayFrameType;
+import me.walkerknapp.devolay.DevolayMetadataFrame;
+import me.walkerknapp.devolay.DevolaySender;
+import me.walkerknapp.devolay.DevolayTally;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -13,7 +16,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import net.minecraft.util.Mth;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,9 +25,9 @@ public class NDIControlThread extends Thread {
     public boolean running = true;
 
     public final AtomicReference<DevolaySender> sender;
-    private CameraEntity entity;
+    private Player entity;
 
-    public NDIControlThread(DevolaySender sender, CameraEntity entity){
+    public NDIControlThread(DevolaySender sender, Player entity){
         this.sender = new AtomicReference<>(sender);
         this.entity = entity;
     }
@@ -57,7 +59,7 @@ public class NDIControlThread extends Thread {
                 continue;
             }
             DevolayMetadataFrame metadataFrame = new DevolayMetadataFrame();
-            if (sender.get().receiveCapture(metadataFrame, 100) == DevolayFrameType.METADATA) {
+            if (sender.get().sendCapture(metadataFrame, 100) == DevolayFrameType.METADATA) {
                 try {
                     Document doc = db.parse(new InputSource(new StringReader(metadataFrame.getData())));
                     String type = doc.getFirstChild().getNodeName();
@@ -67,16 +69,19 @@ public class NDIControlThread extends Thread {
                         float tiltSpeed = Float.parseFloat(element.getAttribute("tilt_speed"));
                         float tilt = 5 * tiltSpeed;
                         float pan = 5 * panSpeed;
-                        float pitch = entity.xRot - tilt;
-                        float yaw = entity.yRot - pan;
+                        float pitch = entity.getXRot() - tilt;
+                        float yaw = entity.getYRot() - pan;
                         entity.setYHeadRot(yaw);
                         entity.absMoveTo(entity.getX(), entity.getY(), entity.getZ(), yaw, pitch);
                     } else if(type.equals("ntk_ptz_zoom_speed")){
                         Element element = (Element) doc.getFirstChild();
                         float zoomSpeed = Float.parseFloat(element.getAttribute("zoom_speed"));
                         float fov = 2 * zoomSpeed;
-                        int newZoom = (int) Mth.clamp((entity.getZoom() + fov), -50f, 69f);
-                        entity.setZoom(newZoom);
+                        if(entity instanceof CameraEntity) {
+                            CameraEntity camera = (CameraEntity) entity;
+                            int newZoom = (int) Mth.clamp((camera.getZoom() + fov), -50f, 69f);
+                            camera.setZoom(newZoom);
+                        }
                     }
                 } catch (SAXException | IOException e) {
                     e.printStackTrace();
@@ -84,7 +89,10 @@ public class NDIControlThread extends Thread {
             }
             DevolayTally tally = sender.get().getTally(0);
             if(tally != null){
-                entity.setLive(tally.isOnProgram());
+                if(entity instanceof CameraEntity) {
+                    CameraEntity camera = (CameraEntity) entity;
+                    camera.setLive(tally.isOnProgram());
+                }
             }
         }
     }

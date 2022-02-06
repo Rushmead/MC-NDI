@@ -1,9 +1,9 @@
 package dev.imabad.ndi;
 
 import com.mojang.authlib.GameProfile;
-import com.walker.devolay.DevolayMetadataFrame;
-import com.walker.devolay.DevolaySender;
 import dev.imabad.ndi.screens.NameScreen;
+import me.walkerknapp.devolay.DevolayMetadataFrame;
+import me.walkerknapp.devolay.DevolaySender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.RemotePlayer;
@@ -107,8 +107,8 @@ public class CameraEntity extends RemotePlayer {
     }
 
     @Override
-    public void remove() {
-        super.remove();
+    public void remove(RemovalReason removalReason) {
+        super.remove(removalReason);
         NDIMod.getCameraManager().cameraControls.get(getUUID()).end();
         NDIMod.getCameraManager().cameras.get(getUUID()).end();
         NDIMod.getCameraManager().cameras.remove(getUUID());
@@ -130,7 +130,7 @@ public class CameraEntity extends RemotePlayer {
     public CompoundTag getTag(){
         CompoundTag tag = new CompoundTag();
         tag.put("pos", this.newDoubleList(this.getX(), this.getY(), this.getZ()));
-        tag.put("rotation", this.newFloatList(this.yRot, this.xRot));
+        tag.put("rotation", this.newFloatList(this.getYRot(), this.getXRot()));
         tag.putString("name", this.name.getContents());
         tag.putString("uuid", this.getStringUUID());
         tag.putInt("zoom", this.zoom);
@@ -140,13 +140,13 @@ public class CameraEntity extends RemotePlayer {
     public void cameraFromTag(CompoundTag tag){
         ListTag pos = tag.getList("pos", 6);
         ListTag rotation = tag.getList("rotation", 5);
-        this.setPosAndOldPos(pos.getDouble(0), pos.getDouble(1), pos.getDouble(2));
-        this.yRot = rotation.getFloat(0);
-        this.xRot = rotation.getFloat(1);
-        this.yRotO = this.yRot;
-        this.xRotO = this.xRot;
-        this.setYHeadRot(this.yRot);
-        this.setYBodyRot(this.yRot);
+        this.setPos(pos.getDouble(0), pos.getDouble(1), pos.getDouble(2));
+        setYRot(rotation.getFloat(0));
+        setXRot(rotation.getFloat(1));
+        this.yRotO = this.getYRot();
+        this.xRotO = this.getXRot();
+        this.setYHeadRot(this.yHeadRot);
+        this.setYBodyRot(this.yBodyRot);
         this.name = new TextComponent(tag.getString("name"));
         this.zoom = tag.getInt("zoom");
         this.reapplyPosition();

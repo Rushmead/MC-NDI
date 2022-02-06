@@ -1,8 +1,8 @@
 package dev.imabad.ndi.threads;
 
-import com.walker.devolay.DevolayFrameFourCCType;
-import com.walker.devolay.DevolaySender;
-import com.walker.devolay.DevolayVideoFrame;
+import me.walkerknapp.devolay.DevolayFrameFourCCType;
+import me.walkerknapp.devolay.DevolaySender;
+import me.walkerknapp.devolay.DevolayVideoFrame;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;

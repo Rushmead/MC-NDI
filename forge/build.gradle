@@ -1,38 +1,118 @@
-plugins {
-    id "com.github.johnrengelman.shadow" version "5.0.0"
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
+        classpath 'org.spongepowered:mixingradle:0.7.+'
+    }
 }
+apply plugin: 'java'
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: 'org.spongepowered.mixin'
+
+archivesBaseName = "${mod_name}-forge-${minecraft_version}"
+
+minecraft {
+    mappings channel: 'official', version: minecraft_version
+
+    if (project.hasProperty('forge_ats_enabled') && project.findProperty('forge_ats_enabled').toBoolean()) {
+        // This location is hardcoded in Forge and can not be changed.
+        // https://github.com/MinecraftForge/MinecraftForge/blob/be1698bb1554f9c8fa2f58e32b9ab70bc4385e60/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModFile.java#L123
+        accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+        project.logger.debug('Forge Access Transformers are enabled for this project.')
+    }
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName 'Client'
+            mods {
+                modClientRun {
+                    source sourceSets.main
+                    source project(":Common").sourceSets.main
+                }
+            }
+
+        }
+
+        server {
+            workingDirectory project.file('run')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName 'Server'
+            mods {
+                modServerRun {
+                    source sourceSets.main
+                    source project(":Common").sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            taskName 'Data'
+            mods {
+                modDataRun {
+                    source sourceSets.main
+                    source project(":Common").sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+sourceSets.main.resources.srcDir 'src/generated/resources'
 
 configurations {
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
-}
-
-architectury {
-    platformSetupLoomIde()
-    forge()
-}
-
-loom {
-    useFabricMixin = true
-    mixinConfig 'mixins.mcndi.json'
+    shade
+    implementation.extendsFrom shade
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
-    // Remove the next line if you don't want to depend on the API
-    modApi "me.shedaniel:architectury-forge:${rootProject.architectury_version}"
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    compileOnly project(":Common")
+    shade 'me.walkerknapp:devolay:2.1.0'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
 
-    implementation(project(path: ":common")) {
-        transitive = false
-    }
-    developmentForge(project(path: ":common")) {
-        transitive = false
-    }
-    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) {
-        transitive = false
-    }
+shadowJar {
+    archiveClassifier = ''
+    configurations = [project.configurations.shade]
+    finalizedBy 'reobfShadowJar'
+}
+
+artifacts {
+    shadowJar
+}
+
+reobf {
+    shadowJar {}
+}
+
+mixin {
+    // MixinGradle Settings
+    add project(":Common").sourceSets.main, 'mixins.mcndi.refmap.json'
+    config 'mixins.mcndi.json'
+}
+
+tasks.withType(JavaCompile) {
+    source(project(":Common").sourceSets.main.allSource)
 }
 
 processResources {
+    from project(":Common").sourceSets.main.resources
+
     inputs.property "version", project.version
 
     filesMatching("META-INF/mods.toml") {
@@ -40,49 +120,20 @@ processResources {
     }
 }
 
-shadowJar {
-    exclude "fabric.mod.json"
-
-    configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
-}
-
-remapJar {
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
-    classifier "forge"
-}
-
-jar {
-    classifier "dev"
-}
-
-java {
-    withSourcesJar()
-}
-
-sourcesJar {
-    def commonSources = project(":common").remapSourcesJar
-    dependsOn commonSources
-    from zipTree(commonSources.output)
-}
+jar.finalizedBy('reobfJar')
 
 publishing {
     publications {
-        mavenForge(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
-            // add all the jars that should be included when publishing to maven
-            artifact(remapJar) {
-                classifier null
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
+        mavenJava(MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+            artifact jar
         }
     }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        // Add repositories to publish to here.
+        maven {
+            url "file://" + System.getenv("local_maven")
+        }
     }
 }

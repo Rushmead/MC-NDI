@@ -1,29 +1,33 @@
 package dev.imabad.ndi;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.walker.devolay.DevolayMetadataFrame;
-import com.walker.devolay.DevolaySender;
+import com.mojang.math.Matrix4f;
 import dev.imabad.ndi.threads.NDIControlThread;
 import dev.imabad.ndi.threads.NDIThread;
-import org.lwjgl.opengl.GL11;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import me.walkerknapp.devolay.DevolayMetadataFrame;
+import me.walkerknapp.devolay.DevolaySender;
 import net.minecraft.Util;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GameRenderHook {
 
     private NDIThread mainOutput;
+    private NDIControlThread mainOutputControl;
     private final DevolaySender mainSender;
 
     private final ConcurrentHashMap<UUID, PBOManager> entityBuffers = new ConcurrentHashMap<>();
@@ -32,6 +36,9 @@ public class GameRenderHook {
 
     public GameRenderHook(String senderName){
         mainSender = new DevolaySender(senderName);
+        DevolayMetadataFrame metadataFrame = new DevolayMetadataFrame();
+        metadataFrame.setData("<ndi_capabilities ntk_ptz=\"true\"/>");
+        mainSender.addConnectionMetadata(metadataFrame);
     }
 
     public Vec3 getEyePos(Entity entity){
@@ -76,6 +83,10 @@ public class GameRenderHook {
             }
         }
         if(player != null && !isPaused){
+            if(mainOutputControl == null) {
+                mainOutputControl = new NDIControlThread(mainSender, player);
+                mainOutputControl.start();
+            }
             List<CameraEntity> needFrames = new ArrayList<>();
             for(CameraEntity e : NDIMod.getCameraManager().cameraEntities){
                 PBOManager pboManager;
@@ -131,7 +142,7 @@ public class GameRenderHook {
                     }
                     RenderTarget entityFramebuffer;
                     if(!entityFramebuffers.containsKey(e.getUUID())){
-                        entityFramebuffer = new RenderTarget(window.getScreenWidth(), window.getScreenHeight(), true, Minecraft.ON_OSX);;
+                        entityFramebuffer = new TextureTarget(window.getScreenWidth(), window.getScreenHeight(), true, Minecraft.ON_OSX);;
                         entityFramebuffers.put(e.getUUID(), entityFramebuffer);
                     } else {
                         entityFramebuffer = entityFramebuffers.get(e.getUUID());
@@ -143,12 +154,12 @@ public class GameRenderHook {
                     GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_COLOR_BUFFER_BIT);
                     MinecraftClientExt.from(minecraftClient).setFramebuffer(entityFramebuffer);
 
-                    GL11.glMatrixMode(GL11.GL_PROJECTION);
-                    RenderSystem.pushMatrix();
-                    RenderSystem.loadIdentity();
-                    GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                    RenderSystem.pushMatrix();
-                    RenderSystem.loadIdentity();
+                    PoseStack poseStack = RenderSystem.getModelViewStack();
+                    Matrix4f projectionMatrix = RenderSystem.getProjectionMatrix();
+                    RenderSystem.backupProjectionMatrix();
+                    projectionMatrix.setIdentity();
+                    poseStack.pushPose();
+                    poseStack.setIdentity();
 
                     PBOManager entityBytes = entityBuffers.get(e.getUUID());;
                     minecraftClient.cameraEntity = e;
@@ -160,10 +171,8 @@ public class GameRenderHook {
                     NDIMod.getCameraManager().cameras.get(e.getUUID()).setByteBuffer(entityBytes.buffer);
                     CameraExt.from(minecraftClient.gameRenderer.getMainCamera()).setCameraY(prevCameraY);
 
-                    GL11.glMatrixMode(GL11.GL_PROJECTION);
-                    RenderSystem.popMatrix();
-                    GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                    RenderSystem.popMatrix();
+                    RenderSystem.restoreProjectionMatrix();
+                    poseStack.popPose();
 
                 }
                 MinecraftClientExt.from(minecraftClient).setFramebuffer(oldWindow);
