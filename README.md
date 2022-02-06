@@ -15,15 +15,11 @@ Requires NDI Runtime to be installed (NDI Tools or NDI SDK will work for this, f
 
 Requires Fabric API when on Fabric.
 
-Requires Architectury API for both [Forge](https://www.curseforge.com/minecraft/mc-mods/architectury-forge) and [Fabric](https://www.curseforge.com/minecraft/mc-mods/architectury-fabric). 
+For 1.16 only, requires Architectury API for both [Forge](https://www.curseforge.com/minecraft/mc-mods/architectury-forge) and [Fabric](https://www.curseforge.com/minecraft/mc-mods/architectury-fabric). 
 
 ## Under the hood
 
 Under the hood this uses the [Devolay library by WalkerKnapp](https://github.com/WalkerKnapp/devolay) which is licensed under Apache-2.0. 
-
-The mod currently depends on version 1.2.1 which does not exist, in development I use a compiled version of the latest master branch.
-
-This also uses [Architectury](https://github.com/architectury) to allow easy development for both Fabric and Forge!
 
 ## License
 
