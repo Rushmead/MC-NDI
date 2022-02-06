@@ -2,6 +2,7 @@ package dev.imabad.ndi;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.imabad.ndi.blocks.BlockScreen;
 import me.walkerknapp.devolay.Devolay;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -34,6 +35,7 @@ public class NDIMod {
         gameRenderHook = new GameRenderHook("MC - " + sourceName);
         newCameraKey = new KeyMapping("New Camera", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "NDI");
         removeCameraMap = new KeyMapping("Remove all Cameras", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F, "NDI");
+        Registrar.BLOCK.register("screen", BlockScreen.INSTANCE);
     }
 
     public static void handleKeybind(Minecraft instance) {
