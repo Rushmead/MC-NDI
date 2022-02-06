@@ -76,10 +76,10 @@ public class NDIControlThread extends Thread {
                     } else if(type.equals("ntk_ptz_zoom_speed")){
                         Element element = (Element) doc.getFirstChild();
                         float zoomSpeed = Float.parseFloat(element.getAttribute("zoom_speed"));
-                        float fov = 2 * zoomSpeed;
+                        float fov = zoomSpeed;
                         if(entity instanceof CameraEntity) {
                             CameraEntity camera = (CameraEntity) entity;
-                            int newZoom = (int) Mth.clamp((camera.getZoom() + fov), -50f, 69f);
+                            float newZoom = Mth.clamp((camera.getZoom() + fov), -50f, 69f);
                             camera.setZoom(newZoom);
                         }
                     }

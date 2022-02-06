@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class CameraEntity extends RemotePlayer {
 
-    private int zoom = 0;
+    private float zoom = 0;
     private boolean isLive = false;
     private Component name;
 
@@ -29,7 +29,7 @@ public class CameraEntity extends RemotePlayer {
         name = new TextComponent(getStringUUID());
     }
 
-    public int getZoom() {
+    public float getZoom() {
         return zoom;
     }
 
@@ -56,7 +56,7 @@ public class CameraEntity extends RemotePlayer {
         return true;
     }
 
-    public void setZoom(int zoom) {
+    public void setZoom(float zoom) {
         this.zoom = zoom;
     }
 
@@ -133,7 +133,7 @@ public class CameraEntity extends RemotePlayer {
         tag.put("rotation", this.newFloatList(this.getYRot(), this.getXRot()));
         tag.putString("name", this.name.getContents());
         tag.putString("uuid", this.getStringUUID());
-        tag.putInt("zoom", this.zoom);
+        tag.putFloat("zoom", this.zoom);
         return tag;
     }
 
@@ -148,7 +148,7 @@ public class CameraEntity extends RemotePlayer {
         this.setYHeadRot(this.yHeadRot);
         this.setYBodyRot(this.yBodyRot);
         this.name = new TextComponent(tag.getString("name"));
-        this.zoom = tag.getInt("zoom");
+        this.zoom = tag.getFloat("zoom");
         this.reapplyPosition();
     }
 }
