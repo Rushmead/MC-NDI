@@ -24,7 +24,7 @@ public class CameraEntity extends RemotePlayer {
     private Component name;
 
     public CameraEntity(ClientLevel clientWorld, GameProfile gameProfile) {
-        super(clientWorld, gameProfile);
+        super(clientWorld, gameProfile, null);
         name = Component.literal(getStringUUID());
     }
 
