@@ -33,8 +33,8 @@ public class NDIMod {
             sourceName = Minecraft.getInstance().getUser().getName();
         }
         gameRenderHook = new GameRenderHook("MC - " + sourceName);
-        newCameraKey = new KeyMapping("New Camera", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "NDI");
-        removeCameraMap = new KeyMapping("Remove all Cameras", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F, "NDI");
+        newCameraKey = new KeyMapping("keys.mcndi.new", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "NDI");
+        removeCameraMap = new KeyMapping("keys.mcndi.remove", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F, "NDI");
         Registrar.BLOCK.register("screen", BlockScreen.INSTANCE);
     }
 
@@ -43,7 +43,7 @@ public class NDIMod {
             UUID uuid = UUID.randomUUID();
             CameraEntity armorStandEntity = new CameraEntity(instance.level, new GameProfile(uuid, uuid.toString()));
             armorStandEntity.setPos(instance.player.getX(), instance.player.getY(), instance.player.getZ());
-            armorStandEntity.setPacketCoordinates(instance.player.getX(), instance.player.getY(), instance.player.getZ());
+            armorStandEntity.setPosRaw(instance.player.getX(), instance.player.getY(), instance.player.getZ());
             armorStandEntity.absMoveTo(instance.player.getX(), instance.player.getY(), instance.player.getZ(), instance.player.getYRot(), instance.player.getXRot());
             armorStandEntity.setYHeadRot(instance.player.yHeadRot);
             instance.level.putNonPlayerEntity(armorStandEntity.getId(), armorStandEntity);
