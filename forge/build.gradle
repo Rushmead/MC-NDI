@@ -21,6 +21,8 @@ apply plugin: 'org.spongepowered.mixin'
 
 archivesBaseName = "${mod_name}-forge-${minecraft_version}"
 
+project.ext.mixin_refmap = "${mod_id}-refmap.json"
+
 minecraft {
     mappings channel: 'official', version: minecraft_version
 
@@ -103,8 +105,8 @@ reobf {
 
 mixin {
     // MixinGradle Settings
-    add project(":Common").sourceSets.main, 'mixins.mcndi.refmap.json'
-    config 'mixins.mcndi.json'
+    add sourceSets.main, project.ext.mixin_refmap
+    config 'mcndi.mixins.json'
 }
 
 tasks.withType(JavaCompile) {
@@ -114,10 +116,15 @@ tasks.withType(JavaCompile) {
 processResources {
     from project(":Common").sourceSets.main.resources
 
+    def buildProps = project.properties.clone()
     inputs.property "version", project.version
 
     filesMatching("META-INF/mods.toml") {
         expand "version": project.version
+    }
+
+    filesMatching('*.mixins.json') {
+        expand buildProps
     }
 }
 

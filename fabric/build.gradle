@@ -7,6 +7,8 @@ plugins {
 
 archivesBaseName = "${mod_name}-fabric-${minecraft_version}"
 
+project.ext.mixin_refmap = "${mod_id}-refmap.json"
+
 configurations {
     shade
     implementation.extendsFrom shade
@@ -45,14 +47,22 @@ loom {
             runDir("run")
         }
     }
+
+    mixin {
+        defaultRefmapName = project.ext.mixin_refmap
+    }
 }
 
 processResources {
     from project(":Common").sourceSets.main.resources
+    def buildProps = project.properties.clone()
     inputs.property "version", project.version
 
     filesMatching("fabric.mod.json") {
         expand "version": project.version
+    }
+    filesMatching('*.mixins.json') {
+        expand buildProps
     }
 }
 

@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "dev.imabad.ndi.mixin",
-  "refmap": "MC-NDI-fabric-1.18.1-refmap.json",
+  "refmap": "${mixin_refmap}",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "CameraMixin",
