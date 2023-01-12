@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -43,7 +42,7 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
             if(cameraEntity.isLive()){
                 matrixStack.pushPose();
                 matrixStack.translate(0, 0.2f, 0);
-                super.renderNameTag(abstractClientPlayerEntity, new TextComponent(ChatFormatting.RED + "● LIVE ●"), matrixStack, vertexConsumerProvider, i);
+                super.renderNameTag(abstractClientPlayerEntity, Component.literal(ChatFormatting.RED + "● LIVE ●"), matrixStack, vertexConsumerProvider, i);
                 matrixStack.popPose();
             }
         }

@@ -48,7 +48,9 @@ public abstract class MinecraftClientMixin implements MinecraftClientExt {
 
     @Inject(method = "runTick(Z)V", at=@At("RETURN"))
     public void runTick(boolean tick, CallbackInfo info) {
-        NDIMod.getGameRenderHook().render(mainRenderTarget, window, player, getDeltaFrameTime(), pause);
+        if(NDIMod.getGameRenderHook() != null) {
+            NDIMod.getGameRenderHook().render(mainRenderTarget, window, player, getDeltaFrameTime(), pause);
+        }
     }
 
     @Override

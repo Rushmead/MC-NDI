@@ -82,6 +82,7 @@ configurations {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compileOnly project(":Common")
+    minecraftLibrary 'me.walkerknapp:devolay:2.1.0'
     shade 'me.walkerknapp:devolay:2.1.0'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
@@ -135,5 +136,14 @@ publishing {
         maven {
             url "file://" + System.getenv("local_maven")
         }
+    }
+}
+
+afterEvaluate {
+    // Collect deps in runtimeClasspath but NOT in minecraft
+    def deps = (configurations.runtimeClasspath - configurations.minecraft).join(';')
+    // Add deps to classpath
+    minecraft.runs.each { run ->
+        run.token 'minecraft_classpath', deps
     }
 }

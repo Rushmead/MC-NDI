@@ -10,7 +10,6 @@ import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -26,7 +25,7 @@ public class CameraEntity extends RemotePlayer {
 
     public CameraEntity(ClientLevel clientWorld, GameProfile gameProfile) {
         super(clientWorld, gameProfile);
-        name = new TextComponent(getStringUUID());
+        name = Component.literal(getStringUUID());
     }
 
     public float getZoom() {
@@ -69,7 +68,7 @@ public class CameraEntity extends RemotePlayer {
         if(this.name.getString().equals(text)){
             return;
         }
-        this.name = new TextComponent(text);
+        this.name = Component.literal(text);
         DevolaySender devolaySender = new DevolaySender("MC - " + text);
         DevolayMetadataFrame metadataFrame = new DevolayMetadataFrame();
         metadataFrame.setData("<ndi_capabilities ntk_ptz=\"true\"/>");
@@ -131,7 +130,7 @@ public class CameraEntity extends RemotePlayer {
         CompoundTag tag = new CompoundTag();
         tag.put("pos", this.newDoubleList(this.getX(), this.getY(), this.getZ()));
         tag.put("rotation", this.newFloatList(this.getYRot(), this.getXRot()));
-        tag.putString("name", this.name.getContents());
+        tag.putString("name", this.name.getString());
         tag.putString("uuid", this.getStringUUID());
         tag.putFloat("zoom", this.zoom);
         return tag;
@@ -147,7 +146,7 @@ public class CameraEntity extends RemotePlayer {
         this.xRotO = this.getXRot();
         this.setYHeadRot(this.yHeadRot);
         this.setYBodyRot(this.yBodyRot);
-        this.name = new TextComponent(tag.getString("name"));
+        this.name = Component.literal(tag.getString("name"));
         this.zoom = tag.getFloat("zoom");
         this.reapplyPosition();
     }
