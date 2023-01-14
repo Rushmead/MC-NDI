@@ -8,6 +8,7 @@ plugins {
 archivesBaseName = "${mod_name}-fabric-${minecraft_version}"
 
 project.ext.mixin_refmap = "${mod_id}-refmap.json"
+project.ext.minecraft_version=minecraft_version
 
 configurations {
     shade
@@ -57,9 +58,10 @@ processResources {
     from project(":Common").sourceSets.main.resources
     def buildProps = project.properties.clone()
     inputs.property "version", project.version
+    inputs.property "minecraft_version", project.ext.minecraft_version
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand buildProps
     }
     filesMatching('*.mixins.json') {
         expand buildProps
